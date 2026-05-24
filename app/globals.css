@@ -1,26 +1,1995 @@
 @import "tailwindcss";
 
+/* ========== 像素RPG CSS变量 ========== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-bg-dark: #0b0a18;
+  --color-bg-deeper: #050410;
+  --color-bg-panel: #1a1035;
+  --color-bg-panel-light: #241b45;
+  --color-border-outer: #2b1b4e;
+  --color-border-inner: #7c6c8e;
+  --color-border-gold: #d4a844;
+  --color-border-gold-dark: #8b6914;
+  --color-text-primary: #e8dcc8;
+  --color-text-muted: #a89e93;
+  --color-text-gold: #ffd700;
+  --color-text-highlight: #7df9ff;
+  --color-accent-green: #4ade80;
+  --color-accent-red: #ef4444;
+  --color-accent-blue: #60a5fa;
+  --color-accent-purple: #c084fc;
+  --color-accent-pink: #f472b6;
+  --pixel-size: 4px;
+  --font-pixel: "Consolas", "SimHei", "Microsoft YaHei", monospace;
+  --font-mono-pixel: "Lucida Console", "Consolas", "Microsoft YaHei", monospace;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ========== 基础重置 ========== */
+* {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-primary);
+  font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  overflow: hidden;
+  cursor: default;
+  position: relative;
+  min-height: 100vh;
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+/* 隐藏的网格背景 (整站) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(124, 108, 142, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(124, 108, 142, 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ========== 像素字体工具类 ========== */
+.font-pixel {
+  font-family: var(--font-pixel), "Microsoft YaHei", monospace;
+  letter-spacing: 0;
+}
+
+/* ========== 像素面板 ========== */
+.pixel-panel {
+  background: var(--color-bg-panel);
+  border: 4px solid var(--color-border-outer);
+  box-shadow:
+    inset 0 0 0 2px var(--color-border-inner),
+    inset 0 0 0 4px var(--color-border-outer),
+    0 0 20px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+.pixel-panel::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 2px solid var(--color-border-inner);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.pixel-panel-gold {
+  border-color: var(--color-border-gold-dark);
+  box-shadow:
+    inset 0 0 0 2px var(--color-border-gold),
+    inset 0 0 0 4px var(--color-border-gold-dark),
+    0 0 30px rgba(212, 168, 68, 0.3);
+}
+
+.pixel-panel-gold::before {
+  border-color: var(--color-border-gold);
+}
+
+/* 角落装饰 */
+.pixel-corners::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background:
+    linear-gradient(to right, var(--color-border-gold) 8px, transparent 8px) top left,
+    linear-gradient(to left, var(--color-border-gold) 8px, transparent 8px) top right,
+    linear-gradient(to right, var(--color-border-gold) 8px, transparent 8px) bottom left,
+    linear-gradient(to left, var(--color-border-gold) 8px, transparent 8px) bottom right,
+    linear-gradient(to bottom, var(--color-border-gold) 8px, transparent 8px) top left,
+    linear-gradient(to bottom, var(--color-border-gold) 8px, transparent 8px) top right,
+    linear-gradient(to top, var(--color-border-gold) 8px, transparent 8px) bottom left,
+    linear-gradient(to top, var(--color-border-gold) 8px, transparent 8px) bottom right;
+  background-repeat: no-repeat;
+  background-size: 8px 2px, 8px 2px, 8px 2px, 8px 2px, 2px 8px, 2px 8px, 2px 8px, 2px 8px;
+  pointer-events: none;
+}
+
+/* ========== 像素按钮 ========== */
+.pixel-btn {
+  font-family: var(--font-pixel), monospace;
+  background: var(--color-bg-panel);
+  border: 3px solid var(--color-border-inner);
+  color: var(--color-text-primary);
+  padding: 12px 24px;
+  font-size: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.1s, background 0.15s, color 0.15s;
+  box-shadow:
+    inset -2px -2px 0 rgba(0, 0, 0, 0.3),
+    inset 2px 2px 0 rgba(255, 255, 255, 0.1);
+}
+
+.pixel-btn:hover {
+  background: var(--color-bg-panel-light);
+  color: var(--color-text-gold);
+  transform: translateY(-2px);
+}
+
+.pixel-btn:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 2px 2px 0 rgba(0, 0, 0, 0.3),
+    inset -2px -2px 0 rgba(255, 255, 255, 0.1);
+}
+
+.pixel-btn-gold {
+  border-color: var(--color-border-gold);
+  color: var(--color-text-gold);
+}
+
+.pixel-btn-gold:hover {
+  background: linear-gradient(180deg, #3a2a18 0%, #1a1035 100%);
+  color: #fff7c2;
+  box-shadow:
+    inset -2px -2px 0 rgba(0, 0, 0, 0.4),
+    inset 2px 2px 0 rgba(255, 215, 0, 0.25),
+    0 0 16px rgba(255, 215, 0, 0.4);
+}
+
+/* ========== 像素进度条 ========== */
+.pixel-progress {
+  background: #0a0a1a;
+  border: 2px solid var(--color-border-outer);
+  box-shadow: inset 0 0 0 1px var(--color-border-inner);
+  height: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pixel-progress-fill {
+  height: 100%;
+  transition: width 1.5s steps(20);
+  position: relative;
+}
+
+.pixel-progress-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0,
+    transparent 6px,
+    rgba(0, 0, 0, 0.2) 6px,
+    rgba(0, 0, 0, 0.2) 8px
+  );
+}
+
+/* 顶部高光 */
+.pixel-progress-fill::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.4), transparent);
+}
+
+/* ========== 像素模态框 ========== */
+.pixel-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.pixel-modal {
+  background: var(--color-bg-panel);
+  border: 4px solid var(--color-border-gold-dark);
+  box-shadow:
+    inset 0 0 0 2px var(--color-border-gold),
+    0 0 40px rgba(212, 168, 68, 0.4);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  position: relative;
+  animation: modalIn 0.25s ease-out;
+}
+
+.pixel-modal-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-family: var(--font-pixel), monospace;
+  color: var(--color-text-gold);
+  font-size: 20px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  z-index: 10;
+  padding: 4px 8px;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.pixel-modal-close:hover {
+  color: white;
+  transform: rotate(90deg);
+}
+
+/* ========== 动画 ========== */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(212, 168, 68, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(212, 168, 68, 0.6), 0 0 40px rgba(212, 168, 68, 0.2); }
+}
+
+@keyframes chest-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.3);
+  }
+}
+
+@keyframes sparkle {
+  0% { transform: scale(0) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1) rotate(180deg); opacity: 1; }
+  100% { transform: scale(0) rotate(360deg); opacity: 0; }
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes drift {
+  0% { transform: translateY(0) translateX(0); }
+  25% { transform: translateY(-10px) translateX(5px); }
+  50% { transform: translateY(-5px) translateX(-5px); }
+  75% { transform: translateY(-15px) translateX(3px); }
+  100% { transform: translateY(0) translateX(0); }
+}
+
+@keyframes scroll-hint {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+@keyframes hue-cycle {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(200%); }
+}
+
+@keyframes coin-spin {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.2); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+/* ========== 区域通用 ========== */
+.section-visible {
+  animation: fadeInUp 0.8s ease-out both;
+}
+
+.section-visible-left {
+  animation: slideInLeft 0.8s ease-out both;
+}
+
+.section-visible-right {
+  animation: slideInRight 0.8s ease-out both;
+}
+
+/* ========== 像素石板路 ========== */
+.pixel-path {
+  width: 32px;
+  margin: 0 auto;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      var(--color-border-outer) 0px,
+      var(--color-border-outer) 4px,
+      var(--color-border-inner) 4px,
+      var(--color-border-inner) 8px
+    );
+  position: relative;
+}
+
+.pixel-path::after {
+  content: "▼";
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--color-border-inner);
+  animation: scroll-hint 1.5s ease-in-out infinite;
+  font-size: 16px;
+}
+
+/* ========== CRT 扫描线 ========== */
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.12) 0,
+    rgba(0, 0, 0, 0.12) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: multiply;
+  opacity: 0.55;
+}
+
+.crt-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(125, 249, 255, 0.04), transparent 30%, transparent 70%, rgba(125, 249, 255, 0.04));
+  animation: scan 8s linear infinite;
+}
+
+/* ========== 滚动条 ========== */
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-deeper);
+  border-left: 2px solid var(--color-border-outer);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-outer);
+  border: 2px solid var(--color-border-inner);
+  box-shadow: inset 0 0 0 1px var(--color-bg-panel);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-inner);
+}
+
+/* ========== 文本辉光工具 ========== */
+.glow-gold {
+  text-shadow:
+    0 0 6px rgba(255, 215, 0, 0.7),
+    0 0 16px rgba(255, 215, 0, 0.35);
+}
+
+.glow-cyan {
+  text-shadow:
+    0 0 6px rgba(125, 249, 255, 0.7),
+    0 0 16px rgba(125, 249, 255, 0.35);
+}
+
+.glow-purple {
+  text-shadow:
+    0 0 6px rgba(192, 132, 252, 0.7),
+    0 0 16px rgba(192, 132, 252, 0.35);
+}
+
+/* ========== 像素徽章稀有度 ========== */
+.rarity-S {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1a0e00;
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.6);
+}
+.rarity-A {
+  background: linear-gradient(135deg, #c084fc 0%, #8b5cf6 100%);
+  color: #ffffff;
+}
+.rarity-B {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  color: #ffffff;
+}
+
+.rarity-legendary { color: #fbbf24; }
+.rarity-elite { color: #c084fc; }
+.rarity-normal { color: #60a5fa; }
+
+/* ========== 错位 / 焦点 hover ========== */
+.tilt-hover {
+  transition: transform 0.25s ease;
+}
+.tilt-hover:hover {
+  transform: translateY(-4px) rotate(-1deg);
+}
+
+/* ========== 像素分隔线 ========== */
+.pixel-divider {
+  height: 4px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--color-border-gold) 0,
+    var(--color-border-gold) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+}
+
+/* ========== 文本闪烁 ========== */
+.blink-slow {
+  animation: blink 1.4s steps(2) infinite;
+}
+
+/* ========== 像素角色卡片悬停 ========== */
+.quest-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.quest-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45), 0 0 24px rgba(124, 108, 142, 0.25);
+}
+
+/* ========== 可玩像素 RPG 地图 ========== */
+.rpg-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  background: #101b22;
+  color: var(--color-text-primary);
+  user-select: none;
+}
+
+.rpg-shell button,
+.rpg-shell a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rpg-sky {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(117, 187, 226, 0.28), transparent 38%),
+    radial-gradient(circle at 20% 16%, rgba(255, 234, 151, 0.34), transparent 13%),
+    linear-gradient(180deg, #14344a 0%, #1c4432 52%, #19331f 100%);
+}
+
+.rpg-map-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.rpg-camera {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+  transition: transform 0.08s linear;
+}
+
+.rpg-ground {
+  position: absolute;
+  inset: 0;
+  background-color: #5ba95d;
+  background-image:
+    linear-gradient(90deg, rgba(35, 78, 38, 0.16) 2px, transparent 2px),
+    linear-gradient(0deg, rgba(35, 78, 38, 0.16) 2px, transparent 2px),
+    linear-gradient(45deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.08) 75%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.08) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.08) 75%);
+  background-size: 32px 32px, 32px 32px, 64px 64px, 64px 64px;
+}
+
+.rpg-water {
+  position: absolute;
+  z-index: 1;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.22) 0 5px, transparent 5px 20px),
+    linear-gradient(135deg, #3ab5cc, #236cae);
+  border: 8px solid #1d4e76;
+  box-shadow: inset 0 0 0 4px #72dce8, 0 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.rpg-water-lake {
+  left: 2210px;
+  top: 118px;
+  width: 610px;
+  height: 270px;
+  clip-path: polygon(8% 18%, 22% 0, 58% 8%, 88% 0, 100% 25%, 91% 78%, 65% 100%, 28% 88%, 0 100%, 4% 50%);
+}
+
+.rpg-water-river {
+  left: 1040px;
+  top: -40px;
+  width: 280px;
+  height: 2140px;
+  transform: rotate(8deg);
+  opacity: 0.78;
+  clip-path: polygon(26% 0, 79% 0, 64% 22%, 93% 42%, 65% 64%, 84% 100%, 25% 100%, 6% 68%, 32% 46%, 9% 19%);
+}
+
+.rpg-path {
+  position: absolute;
+  z-index: 2;
+  height: 62px;
+  background:
+    linear-gradient(90deg, rgba(94, 70, 39, 0.18) 0 8px, transparent 8px 16px),
+    #d9be76;
+  border-top: 6px solid #9f7d42;
+  border-bottom: 6px solid #9f7d42;
+  box-shadow: inset 0 0 0 4px rgba(255, 247, 196, 0.34);
+}
+
+.rpg-path-a {
+  left: 550px;
+  top: 900px;
+  width: 2020px;
+}
+
+.rpg-path-b {
+  left: 735px;
+  top: 795px;
+  width: 720px;
+  transform: rotate(-33deg);
+}
+
+.rpg-path-c {
+  left: 1590px;
+  top: 900px;
+  width: 690px;
+  transform: rotate(39deg);
+}
+
+.rpg-path-d {
+  left: 510px;
+  top: 1165px;
+  width: 1120px;
+  transform: rotate(35deg);
+}
+
+.rpg-cliff {
+  position: absolute;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, #8f7b5a 0 24px, #5d4c39 24px 42px, #30291f 42px 48px);
+  background-size: 100% 48px;
+  border: 6px solid #352d22;
+  box-shadow: inset 0 0 0 5px rgba(255, 233, 164, 0.18);
+}
+
+.rpg-cliff-left {
+  left: 20px;
+  top: 990px;
+  width: 260px;
+  height: 860px;
+  clip-path: polygon(0 0, 88% 5%, 100% 48%, 82% 100%, 0 100%);
+}
+
+.rpg-cliff-right {
+  right: 20px;
+  top: 1300px;
+  width: 330px;
+  height: 520px;
+  clip-path: polygon(20% 0, 100% 0, 100% 100%, 5% 86%, 0 24%);
+}
+
+.rpg-tree,
+.rpg-rock {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.rpg-tree {
+  width: 34px;
+  height: 46px;
+  background:
+    linear-gradient(#5b3d1c, #5b3d1c) 14px 28px / 7px 17px no-repeat,
+    linear-gradient(135deg, transparent 12%, #1d5e36 12% 88%, transparent 88%),
+    linear-gradient(45deg, transparent 18%, #2f8e48 18% 82%, transparent 82%);
+  filter: drop-shadow(4px 6px 0 rgba(0, 0, 0, 0.18));
+}
+
+.rpg-tree-1 {
+  transform: scale(0.82);
+}
+
+.rpg-tree-2 {
+  transform: scale(1.12);
+}
+
+.rpg-rock {
+  width: 28px;
+  height: 20px;
+  background:
+    linear-gradient(135deg, #c7c0ad 0 38%, #78746c 38% 72%, #3f3e3a 72%);
+  border: 3px solid #3b3a35;
+  box-shadow: inset 4px 3px 0 rgba(255, 255, 255, 0.22);
+}
+
+.rpg-rock-1 {
+  width: 20px;
+  height: 16px;
+}
+
+.rpg-hud {
+  position: fixed;
+  top: 14px;
+  left: 16px;
+  right: 16px;
+  z-index: 40;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.rpg-brand,
+.rpg-nav-btn {
+  border: 4px solid #211729;
+  background: #f6e9b4;
+  color: #20151f;
+  box-shadow: 0 5px 0 #211729, inset 0 0 0 4px rgba(255, 255, 255, 0.42);
+  font-family: var(--font-pixel), "Microsoft YaHei", monospace;
+}
+
+.rpg-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 7px 12px;
+  text-align: left;
+}
+
+.rpg-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  background: #1c2440;
+  color: #ffd75d;
+  border: 3px solid #f0c54c;
+  font-size: 10px;
+}
+
+.rpg-brand strong,
+.rpg-brand em {
+  display: block;
+  font-style: normal;
+}
+
+.rpg-brand strong {
+  font-size: 12px;
+}
+
+.rpg-brand em {
+  margin-top: 5px;
+  font-size: 9px;
+  color: #5b4431;
+}
+
+.rpg-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 0 8px;
+  scrollbar-width: none;
+}
+
+.rpg-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.rpg-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: max-content;
+  height: 48px;
+  padding: 0 12px;
+  font-size: 10px;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.rpg-nav-btn:hover,
+.rpg-nav-btn.is-active {
+  transform: translateY(-3px);
+  background: var(--area-tone);
+  color: #15110d;
+}
+
+.rpg-nav-btn span {
+  font-size: 16px;
+}
+
+.rpg-zone {
+  position: absolute;
+  z-index: 8;
+  width: 192px;
+  height: 112px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.rpg-zone::before {
+  content: "";
+  position: absolute;
+  left: 89px;
+  top: 66px;
+  width: 14px;
+  height: 38px;
+  z-index: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.22), transparent 45%),
+    #6f4a25;
+  border: 4px solid #1c1720;
+  box-shadow: 0 7px 0 rgba(0, 0, 0, 0.25);
+}
+
+.rpg-zone::after {
+  content: "";
+  position: absolute;
+  left: 62px;
+  top: 96px;
+  width: 68px;
+  height: 20px;
+  z-index: -1;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.rpg-zone.is-active {
+  filter: drop-shadow(0 0 16px rgba(255, 244, 157, 0.35));
+}
+
+.rpg-zone-sign {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  width: 192px;
+  min-height: 74px;
+  transform: none;
+  border: 4px solid #20151d;
+  background: #fff2bd;
+  color: #251a20;
+  padding: 8px 10px 9px;
+  box-shadow: 0 5px 0 #20151d;
+  font-family: var(--font-pixel), "Microsoft YaHei", monospace;
+  text-align: center;
+  cursor: pointer;
+}
+
+.rpg-zone-sign span,
+.rpg-zone-sign strong,
+.rpg-zone-sign em {
+  display: block;
+}
+
+.rpg-zone-sign span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.rpg-zone-sign strong {
+  margin-top: 3px;
+  font-size: 11px;
+}
+
+.rpg-zone-sign em {
+  margin-top: 4px;
+  font-size: 7px;
+  color: #7a6044;
+  font-style: normal;
+}
+
+.rpg-zone-sign i {
+  display: inline-block;
+  margin-top: 5px;
+  border: 2px solid #20151d;
+  background: #5ed39d;
+  color: #171018;
+  padding: 2px 4px;
+  font-size: 6px;
+  font-style: normal;
+}
+
+.rpg-zone.is-visited .rpg-zone-sign {
+  background:
+    linear-gradient(135deg, rgba(94, 211, 157, 0.16), transparent 46%),
+    #fff2bd;
+}
+
+.rpg-zone-roof,
+.rpg-zone-body {
+  display: none;
+}
+
+.rpg-pickup {
+  position: absolute;
+  z-index: 11;
+  width: 50px;
+  height: 56px;
+  border: 0;
+  background: transparent;
+  color: #fff3bf;
+  cursor: pointer;
+  filter: drop-shadow(0 8px 0 rgba(0, 0, 0, 0.24));
+  animation: rpg-pickup-bob 1.05s steps(2) infinite;
+}
+
+.rpg-pickup::before {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  width: 34px;
+  height: 30px;
+  border: 4px solid #171018;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.36), transparent 38%),
+    #f2c75e;
+  box-shadow: 0 5px 0 #171018, inset 0 0 0 3px rgba(255, 255, 255, 0.22);
+}
+
+.rpg-pickup span {
+  position: absolute;
+  left: 0;
+  top: 3px;
+  z-index: 2;
+  width: 50px;
+  text-align: center;
+  color: #28151b;
+  font-family: var(--font-pixel), monospace;
+  font-size: 18px;
+  line-height: 34px;
+}
+
+.rpg-pickup strong {
+  position: absolute;
+  left: 50%;
+  top: 47px;
+  min-width: 78px;
+  transform: translateX(-50%);
+  border: 3px solid #171018;
+  background: #fff2bd;
+  color: #251a20;
+  padding: 3px 5px;
+  box-shadow: 0 3px 0 #171018;
+  font-family: var(--font-pixel), "Microsoft YaHei", monospace;
+  font-size: 7px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rpg-pickup:hover strong,
+.rpg-pickup:focus-visible strong {
+  opacity: 1;
+}
+
+.rpg-pickup-crystal::before {
+  clip-path: polygon(50% 0, 100% 38%, 78% 100%, 22% 100%, 0 38%);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.48), transparent 42%),
+    #70e1ff;
+}
+
+.rpg-pickup-scroll::before {
+  background:
+    linear-gradient(90deg, #8e5a2a 0 8px, transparent 8px calc(100% - 8px), #8e5a2a calc(100% - 8px)),
+    #fff2bd;
+}
+
+.rpg-pickup-medal::before {
+  border-radius: 0;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.42), transparent 42%),
+    #f7d85f;
+}
+
+.rpg-pickup.is-collected {
+  opacity: 0.22;
+  filter: grayscale(1) drop-shadow(0 5px 0 rgba(0, 0, 0, 0.18));
+  animation: none;
+  cursor: default;
+}
+
+.rpg-about-grid {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  grid-template-rows: auto auto;
+  gap: 14px;
+  height: 100%;
+}
+
+.rpg-portrait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  border: 4px solid #161019;
+  background: #304739;
+  padding: 10px;
+}
+
+.rpg-portrait img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border: 4px solid #f2d25d;
+}
+
+.rpg-portrait strong,
+.rpg-portrait span {
+  text-align: center;
+}
+
+.rpg-portrait strong {
+  font-family: var(--font-pixel), monospace;
+  font-size: 9px;
+  color: #ffe178;
+}
+
+.rpg-portrait span {
+  font-size: 12px;
+  color: #e5dbc2;
+}
+
+.rpg-textbox {
+  min-width: 0;
+  border: 4px solid #161019;
+  background: #2d2432;
+  padding: 13px;
+}
+
+.rpg-textbox h1 {
+  font-family: var(--font-pixel), "Microsoft YaHei", monospace;
+  font-size: 18px;
+  color: #ffdd66;
+  margin-bottom: 8px;
+}
+
+.rpg-textbox h2 {
+  font-size: 15px;
+  color: #8ce7ff;
+  margin-bottom: 10px;
+}
+
+.rpg-textbox p {
+  font-size: 13px;
+  line-height: 1.75;
+  color: #efe6d1;
+}
+
+.rpg-info-list {
+  border: 4px solid #161019;
+  background: #473241;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.rpg-info-list li {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 8px;
+}
+
+.rpg-info-list span,
+.rpg-timeline span {
+  color: #a7f3d0;
+  font-family: var(--font-pixel), monospace;
+  font-size: 8px;
+}
+
+.rpg-info-list strong {
+  color: #fff2c7;
+  font-weight: 600;
+}
+
+.rpg-timeline {
+  border: 4px solid #161019;
+  background: #252c3c;
+  padding: 10px;
+  display: grid;
+  gap: 7px;
+}
+
+.rpg-timeline li {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+
+.rpg-timeline strong {
+  color: #f7d77b;
+}
+
+.rpg-skill-list {
+  display: grid;
+  gap: 10px;
+  height: 100%;
+}
+
+.rpg-skill-row {
+  min-width: 0;
+  border: 3px solid #151018;
+  background: rgba(45, 35, 54, 0.94);
+  padding: 9px 10px;
+}
+
+.rpg-skill-title {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.rpg-skill-title strong {
+  color: #fff1bf;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rpg-skill-title em {
+  color: var(--skill-color);
+  font-family: var(--font-pixel), monospace;
+  font-size: 8px;
+  font-style: normal;
+}
+
+.rpg-skill-bar {
+  height: 15px;
+  margin-top: 6px;
+  border: 3px solid #100d13;
+  background: #0c1018;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
+.rpg-skill-bar span {
+  display: block;
+  width: var(--skill-level);
+  height: 100%;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.2) 0 6px, transparent 6px 12px),
+    linear-gradient(90deg, color-mix(in srgb, var(--skill-color), #ffffff 18%), var(--skill-color));
+}
+
+.rpg-skill-row p {
+  margin-top: 5px;
+  color: #cbbfbb;
+  font-size: 11px;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rpg-quest-board {
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.rpg-quest-pin {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  border: 4px solid #151018;
+  background: #fff2bd;
+  color: #2a1c1e;
+  padding: 10px;
+  text-align: left;
+  box-shadow: 0 5px 0 #151018;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.rpg-quest-pin:hover {
+  transform: translateY(-4px);
+  filter: brightness(1.06);
+}
+
+.rpg-quest-pin span {
+  font-size: 21px;
+}
+
+.rpg-quest-pin strong {
+  color: #2c1b22;
+  font-size: 13px;
+  line-height: 1.28;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rpg-quest-pin em {
+  font-family: var(--font-pixel), monospace;
+  font-size: 8px;
+  color: #71492f;
+  font-style: normal;
+}
+
+.rpg-quest-pin small {
+  color: #4f4550;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.rpg-quest-pin.rarity-legendary {
+  background: #ffe08b;
+}
+
+.rpg-quest-pin.rarity-elite {
+  background: #e1c5ff;
+}
+
+.rpg-quest-pin.rarity-normal {
+  background: #cde7ff;
+}
+
+.rpg-certificate-wall {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  height: 100%;
+}
+
+.rpg-certificate-tile {
+  position: relative;
+  min-width: 0;
+  border: 4px solid #151018;
+  background: #312539;
+  color: #fff3c8;
+  padding: 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  box-shadow: 0 5px 0 #151018;
+  transition: transform 0.12s ease;
+}
+
+.rpg-certificate-tile:hover {
+  transform: translateY(-4px);
+}
+
+.rpg-certificate-tile.rarity-S {
+  background: #493719;
+}
+
+.rpg-certificate-tile.rarity-A {
+  background: #34294f;
+}
+
+.rpg-certificate-tile.rarity-B {
+  background: #263850;
+}
+
+.rpg-certificate-icon {
+  position: absolute;
+  right: 6px;
+  top: 4px;
+  z-index: 2;
+  font-size: 20px;
+  filter: drop-shadow(2px 2px 0 #151018);
+}
+
+.rpg-certificate-tile strong {
+  font-size: 11px;
+  line-height: 1.28;
+  min-height: 30px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rpg-certificate-tile em {
+  font-family: var(--font-pixel), monospace;
+  font-size: 8px;
+  color: #88f1ff;
+  font-style: normal;
+}
+
+.pixel-cert-frame {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 4px solid #151018;
+  background:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.24) 25%, transparent 25% 75%, rgba(255, 255, 255, 0.24) 75%),
+    #f3dfae;
+  background-size: 12px 12px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.pixel-cert-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  filter: saturate(1.4) contrast(1.08);
+}
+
+.pixel-cert-loading {
+  font-family: var(--font-pixel), monospace;
+  color: #2d2430;
+  font-size: 12px;
+}
+
+.rpg-contact-board {
+  display: grid;
+  gap: 18px;
+  height: 100%;
+  align-content: center;
+}
+
+.rpg-contact-board h2 {
+  color: #fff1b8;
+  font-size: 17px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.rpg-contact-links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.rpg-contact-links a,
+.rpg-contact-links div {
+  min-width: 0;
+  border: 4px solid #151018;
+  background: #fff2bd;
+  color: #251a20;
+  padding: 12px 8px;
+  display: flex;
+  min-height: 112px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+  box-shadow: 0 5px 0 #151018;
+}
+
+.rpg-contact-links span {
+  font-size: 24px;
+}
+
+.rpg-contact-links strong {
+  font-family: var(--font-pixel), monospace;
+  font-size: 9px;
+  color: #7a3e49;
+}
+
+.rpg-contact-links em {
+  max-width: 100%;
+  font-size: 12px;
+  font-style: normal;
+  word-break: break-word;
+}
+
+.rpg-contact-board p {
+  text-align: center;
+  color: #ffdb74;
+  font-family: var(--font-pixel), monospace;
+  font-size: 9px;
+}
+
+.rpg-player {
+  position: absolute;
+  z-index: 15;
+  pointer-events: none;
+  animation: rpg-walk-bob 0.56s steps(2) infinite;
+}
+
+.rpg-player img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(4px 6px 0 rgba(0, 0, 0, 0.38));
+}
+
+.rpg-player-shadow {
+  position: absolute;
+  left: 9px;
+  right: 9px;
+  bottom: -5px;
+  z-index: 1;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.rpg-dialogue {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 35;
+  width: min(420px, calc(100vw - 32px));
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  align-items: center;
+  gap: 12px;
+  border: 4px solid #161019;
+  background: #fff2bd;
+  color: #251a20;
+  padding: 10px;
+  box-shadow: 0 6px 0 #161019;
+}
+
+.rpg-dialogue-face {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  background: var(--area-tone);
+  border: 3px solid #161019;
+  font-size: 26px;
+}
+
+.rpg-dialogue span {
+  display: block;
+  color: #7b6044;
+  font-family: var(--font-pixel), monospace;
+  font-size: 8px;
+}
+
+.rpg-dialogue strong {
+  display: block;
+  margin-top: 5px;
+  font-family: var(--font-pixel), "Microsoft YaHei", monospace;
+  font-size: 13px;
+}
+
+.rpg-progress-hud {
+  position: fixed;
+  top: 88px;
+  right: 16px;
+  z-index: 34;
+  width: 238px;
+  border: 4px solid #161019;
+  background: #2c2232;
+  color: #fff2c7;
+  padding: 12px;
+  box-shadow: 0 6px 0 #161019, inset 0 0 0 4px rgba(255, 255, 255, 0.08);
+  font-family: var(--font-pixel), "Microsoft YaHei", monospace;
+}
+
+.rpg-progress-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rpg-progress-head span {
+  color: #ffdd66;
+  font-size: 10px;
+}
+
+.rpg-progress-head strong {
+  color: #8ce7ff;
+  font-size: 14px;
+}
+
+.rpg-progress-bar {
+  height: 16px;
+  margin-top: 10px;
+  border: 3px solid #100d13;
+  background: #10131e;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
+.rpg-progress-bar span {
+  display: block;
+  width: 0;
+  height: 100%;
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.18) 0 6px, transparent 6px 12px),
+    linear-gradient(90deg, #58e19a, #8ce7ff);
+  transition: width 0.28s steps(8);
+}
+
+.rpg-xp-line {
+  margin-top: 9px;
+  color: #f2c75e;
+  font-size: 10px;
+}
+
+.rpg-progress-hud ul {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.rpg-progress-hud li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #cbbfbb;
+  font-size: 9px;
+}
+
+.rpg-progress-hud li::before {
+  content: "□";
+  color: #8ce7ff;
+}
+
+.rpg-progress-hud li.is-done {
+  color: #a7f3d0;
+}
+
+.rpg-progress-hud li.is-done::before {
+  content: "■";
+  color: #5ed39d;
+}
+
+.rpg-progress-hud li.is-active {
+  color: #ffdd66;
+  animation: blink 0.9s steps(2) infinite;
+}
+
+.rpg-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 104px;
+  z-index: 90;
+  max-width: min(560px, calc(100vw - 28px));
+  transform: translateX(-50%);
+  border: 4px solid #161019;
+  background: #fff2bd;
+  color: #21151b;
+  padding: 12px 14px;
+  box-shadow: 0 6px 0 #161019;
+  font-family: var(--font-pixel), "Microsoft YaHei", monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+  animation: rpg-toast-pop 0.2s steps(2);
+}
+
+.rpg-dpad {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 36;
+  display: none;
+  grid-template-columns: repeat(3, 48px);
+  grid-template-rows: repeat(3, 48px);
+  gap: 6px;
+}
+
+.rpg-dpad button,
+.rpg-dpad-core {
+  border: 4px solid #161019;
+  background: #fff2bd;
+  color: #20151f;
+  box-shadow: 0 4px 0 #161019;
+  font-family: var(--font-pixel), monospace;
+  font-size: 16px;
+}
+
+.rpg-dpad-core {
+  background: #f2c75e;
+}
+
+.rpg-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(8, 7, 12, 0.82);
+}
+
+.rpg-modal-card {
+  position: relative;
+  width: min(860px, 100%);
+  max-height: min(86vh, 760px);
+  overflow: auto;
+  border: 6px solid #151018;
+  background: #2c2232;
+  padding: 22px;
+  box-shadow: 0 10px 0 #151018, inset 0 0 0 5px rgba(255, 255, 255, 0.08);
+}
+
+.rpg-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 38px;
+  height: 38px;
+  border: 4px solid #151018;
+  background: #f46d75;
+  color: #151018;
+  box-shadow: 0 4px 0 #151018;
+  font-family: var(--font-pixel), monospace;
+  font-size: 18px;
+}
+
+.rpg-modal-title {
+  padding-right: 54px;
+  margin-bottom: 18px;
+}
+
+.rpg-modal-title span {
+  display: inline-block;
+  background: #f2c75e;
+  color: #21151b;
+  border: 3px solid #151018;
+  padding: 5px 8px;
+  font-family: var(--font-pixel), monospace;
+  font-size: 9px;
+}
+
+.rpg-modal-title h2 {
+  margin-top: 10px;
+  color: #ffdd66;
+  font-size: 22px;
+  line-height: 1.35;
+}
+
+.rpg-modal-cert {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(240px, 0.75fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.rpg-modal-cert .pixel-cert-frame {
+  aspect-ratio: 16 / 10;
+}
+
+.rpg-modal-cert dl {
+  display: grid;
+  gap: 10px;
+}
+
+.rpg-modal-cert dl div {
+  border: 4px solid #151018;
+  background: #fff2bd;
+  color: #231820;
+  padding: 10px;
+}
+
+.rpg-modal-cert dt {
+  font-family: var(--font-pixel), monospace;
+  font-size: 8px;
+  color: #7a3e49;
+}
+
+.rpg-modal-cert dd {
+  margin-top: 5px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rpg-modal-cert p,
+.rpg-modal-quest p {
+  grid-column: 1 / -1;
+  color: #eee1c7;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.rpg-modal-quest {
+  display: grid;
+  gap: 16px;
+}
+
+.rpg-rarity-chip {
+  justify-self: start;
+  border: 3px solid #151018;
+  background: #f2c75e;
+  color: #20151f;
+  padding: 6px 9px;
+  font-family: var(--font-pixel), monospace;
+  font-size: 9px;
+}
+
+.rpg-modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rpg-modal-tags span {
+  border: 3px solid #151018;
+  background: #fff2bd;
+  color: #231820;
+  padding: 6px 8px;
+  font-family: var(--font-pixel), monospace;
+  font-size: 9px;
+}
+
+@keyframes rpg-walk-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes rpg-pickup-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes rpg-toast-pop {
+  0% { transform: translateX(-50%) translateY(8px) scale(0.96); opacity: 0; }
+  100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+}
+
+@media (max-width: 900px) {
+  .rpg-hud {
+    left: 10px;
+    right: 10px;
+    top: 10px;
+    grid-template-columns: 1fr;
+  }
+
+  .rpg-brand {
+    min-height: 48px;
+    max-width: 100%;
+  }
+
+  .rpg-brand-mark {
+    width: 34px;
+    height: 34px;
+    font-size: 9px;
+  }
+
+  .rpg-brand strong {
+    font-size: 11px;
+  }
+
+  .rpg-brand em {
+    font-size: 8px;
+  }
+
+  .rpg-nav-btn {
+    height: 42px;
+    padding: 0 9px;
+    font-size: 9px;
+  }
+
+  .rpg-dialogue {
+    bottom: 104px;
+    left: 10px;
+    width: min(330px, calc(100vw - 20px));
+  }
+
+  .rpg-dialogue strong {
+    font-size: 11px;
+  }
+
+  .rpg-progress-hud {
+    top: auto;
+    right: 10px;
+    bottom: 154px;
+    width: min(220px, calc(100vw - 20px));
+    padding: 10px;
+  }
+
+  .rpg-progress-hud ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .rpg-progress-hud li {
+    font-size: 7px;
+  }
+
+  .rpg-toast {
+    bottom: 214px;
+    font-size: 9px;
+  }
+
+  .rpg-dpad {
+    display: grid;
+  }
+}
+
+@media (max-width: 620px) {
+  .rpg-zone-body {
+    padding: 14px;
+  }
+
+  .rpg-about-grid {
+    grid-template-columns: 128px 1fr;
+    gap: 10px;
+  }
+
+  .rpg-portrait img {
+    width: 82px;
+    height: 82px;
+  }
+
+  .rpg-textbox h1 {
+    font-size: 15px;
+  }
+
+  .rpg-textbox h2 {
+    font-size: 13px;
+  }
+
+  .rpg-textbox p {
+    font-size: 12px;
+    line-height: 1.65;
+  }
+
+  .rpg-certificate-wall {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .rpg-contact-links {
+    grid-template-columns: 1fr;
+  }
+
+  .rpg-modal-card {
+    padding: 16px;
+  }
+
+  .rpg-modal-cert {
+    grid-template-columns: 1fr;
+  }
+
+  .rpg-dpad {
+    right: 10px;
+    bottom: 10px;
+    grid-template-columns: repeat(3, 42px);
+    grid-template-rows: repeat(3, 42px);
+  }
+
+  .rpg-progress-hud {
+    display: none;
+  }
+}
+
+/* ===== RPG 区域靠近交互样式 ===== */
+.rpg-zone.is-nearby .rpg-zone-sign {
+  animation: rpg-sign-pulse 1.2s ease-in-out infinite;
+  box-shadow: 0 5px 0 #20151d, 0 0 24px rgba(255, 244, 157, 0.55);
+}
+
+@keyframes rpg-sign-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+/* ===== 弹窗内组件高度自适应 ===== */
+.rpg-modal-about .rpg-about-grid {
+  height: auto;
+}
+
+.rpg-modal-skills .rpg-skill-list {
+  height: auto;
+}
+
+.rpg-modal-quests .rpg-quest-board {
+  height: auto;
+}
+
+.rpg-modal-certificates .rpg-certificate-wall {
+  height: auto;
+}
+
+/* ===== 实习经历 ===== */
+.rpg-internship-section {
+  margin-top: 18px;
+  border-top: 4px solid #161019;
+  padding-top: 14px;
+}
+
+.rpg-internship-section h3 {
+  font-family: var(--font-pixel), "Microsoft YaHei", monospace;
+  font-size: 14px;
+  color: #ffdd66;
+  margin-bottom: 10px;
+}
+
+.rpg-internship-list {
+  display: grid;
+  gap: 10px;
+}
+
+.rpg-internship-card {
+  border: 4px solid #161019;
+  background: #2d2432;
+  padding: 10px 12px;
+}
+
+.rpg-internship-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.rpg-internship-header strong {
+  color: #8ce7ff;
+  font-size: 13px;
+}
+
+.rpg-internship-header span {
+  color: #a7f3d0;
+  font-family: var(--font-pixel), monospace;
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.rpg-internship-role {
+  color: #f2d25d;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.rpg-internship-card p {
+  color: #cbbfbb;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ===== 弹窗内 Contact ===== */
+.rpg-modal-contact {
+  display: grid;
+  gap: 16px;
+  text-align: center;
+}
+
+.rpg-modal-contact h2 {
+  color: #ffdd66;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* ===== 弹窗内 About 滚动 ===== */
+.rpg-modal-about {
+  max-height: min(70vh, 600px);
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.rpg-modal-about::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rpg-modal-about::-webkit-scrollbar-thumb {
+  background: #4a3b55;
+  border-radius: 3px;
 }

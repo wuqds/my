@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# cloudflared / dev logs
+*.log
+fix-cloudflared-hosts.ps1
+start-dev.js
+
+# IDE / AI
+.claude/
+output/
