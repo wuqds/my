@@ -783,7 +783,7 @@ function Player({ position }: { position: Position }) {
         height: PLAYER_SIZE,
       }}
     >
-      <img src="/images/avatar_pixel_32.png" alt="吴家鑫 像素角色" />
+      <img src="images/avatar_pixel_32.png" alt="吴家鑫 像素角色" />
       <span className="rpg-player-shadow" />
     </div>
   );
